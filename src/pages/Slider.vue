@@ -11,6 +11,11 @@
       />
     </div>
     <SlideContent :products="products" :currentIndex="currentIndex" />
+    <SliderButtons
+      :products="products"
+      :currentIndex="currentIndex"
+      @handleBtnClick="handleBtnClick"
+    />
   </div>
 </template>
 
@@ -19,11 +24,17 @@ import "./Slider.scss";
 import { defineComponent, ref, watch, onUnmounted } from "vue";
 import SlideImage from "../components/SlideImage/SlideImage.vue";
 import SlideContent from "../components/SlideContent/SlideContent.vue";
+import SliderButtons from "../components/SliderButtons/SliderButtons.vue";
+
 import { Product } from "../types/Product";
 
 export default defineComponent({
   name: "Slider",
-  components: { SlideImage, SlideContent },
+  components: {
+    SlideImage,
+    SlideContent,
+    SliderButtons,
+  },
   props: {
     products: {
       type: Array as () => Product[],
@@ -49,6 +60,18 @@ export default defineComponent({
       currentIndex.value = (currentIndex.value + 1) % props.products.length;
     };
 
+    const prevSlide = () => {
+      currentIndex.value =
+        (currentIndex.value - 1 + props.products.length) %
+        props.products.length;
+    };
+
+    const handleBtnClick = (direction: "next" | "prev") => {
+      stopInterval();
+      direction === "next" ? nextSlide() : prevSlide();
+      startInterval();
+    };
+
     watch(
       () => props.products,
       (newProducts) => {
@@ -64,6 +87,7 @@ export default defineComponent({
 
     return {
       currentIndex,
+      handleBtnClick,
     };
   },
 });
